@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1E2D3D">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>Energyco VT</title>
+<style>
+:root {
+  --orange: #F47920; --orange-light: #FFF3E8;
+  --blue: #1E2D3D; --blue-light: #E8EDF2;
+  --green: #22C55E; --green-light: #DCFCE7;
+  --red: #EF4444;
+  --g50: #F9FAFB; --g100: #F3F4F6; --g200: #E5E7EB; --g300: #D1D5DB;
+  --g400: #9CA3AF; --g500: #6B7280; --g600: #4B5563; --g700: #374151; --g800: #1F2937;
+  --radius: 12px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--g50); color: var(--g800); min-height: 100vh; min-height: 100dvh; padding-bottom: calc(72px + var(--safe-b)); }
+
+/* Header */
+.hdr { background: var(--blue); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.hdr h1 { font-size: 16px; font-weight: 700; }
+.hdr .sub { font-size: 11px; opacity: .7; }
+.hdr-actions { display: flex; gap: 6px; }
+.btn-h { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); color: #fff; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px; min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+
+/* Tabs */
+.tabs { display: flex; background: #fff; border-bottom: 2px solid var(--g200); position: sticky; top: 52px; z-index: 99; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tab { padding: 12px 16px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; color: var(--g500); white-space: nowrap; min-height: 48px; display: flex; align-items: center; gap: 4px; position: relative; }
+.tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+.tab .badge { background: var(--orange); color: #fff; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+
+.content { max-width: 720px; margin: 0 auto; padding: 16px 12px; }
+.panel { display: none; } .panel.active { display: block; }
+
+/* Cards */
+.card { background: #fff; border-radius: var(--radius); border: 1px solid var(--g200); padding: 16px; margin-bottom: 12px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+
+/* Upload zone — input est DEHORS */
+.drop { border: 2px dashed var(--g300); border-radius: var(--radius); padding: 28px 16px; text-align: center; cursor: pointer; transition: .2s; }
+.drop:active, .drop.over { border-color: var(--orange); background: var(--orange-light); }
+.drop p { color: var(--g500); font-size: 12px; margin-top: 6px; }
+.drop .ico { font-size: 28px; color: var(--g400); }
+
+/* Photo grid */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; margin-top: 10px; }
+.pthumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--g200); }
+.pthumb img { width: 100%; height: 100%; object-fit: cover; }
+.pthumb .rm { position: absolute; top: 2px; right: 2px; background: var(--red); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.pthumb .sz { position: absolute; bottom: 2px; left: 2px; font-size: 9px; color: #fff; background: rgba(0,0,0,.6); padding: 1px 4px; border-radius: 4px; }
+
+/* Category */
+.cat { margin-bottom: 14px; }
+.cat-hdr { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--g100); border-radius: 8px; margin-bottom: 6px; min-height: 48px; }
+.cat-name { font-size: 13px; font-weight: 600; color: var(--g700); display: flex; align-items: center; gap: 6px; }
+.cat-cnt { background: var(--orange); color: #fff; font-size: 10px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.cat-acts { display: flex; gap: 6px; align-items: center; }
+
+/* Floor */
+.floor { margin-bottom: 16px; }
+.floor-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; min-height: 44px; }
+.floor-lbl { font-size: 14px; font-weight: 600; color: var(--blue); }
+
+/* Buttons — min 48px touch */
+.btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: .15s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; }
+.btn-p { background: var(--orange); color: #fff; } .btn-p:active { opacity: .7; } .btn-p:disabled { opacity: .4; }
+.btn-s { background: var(--g100); color: var(--g700); border: 1px solid var(--g300); } .btn-s:active { background: var(--g200); }
+.btn-d { background: var(--red); color: #fff; }
+.btn-sm { padding: 6px 10px; font-size: 12px; min-height: 36px; }
+.btn-add { background: var(--blue); color: #fff; width: 100%; min-height: 48px; font-size: 14px; border-radius: var(--radius); border: none; cursor: pointer; font-weight: 600; }
+
+/* Textarea */
+.tarea { width: 100%; min-height: 300px; border: 1px solid var(--g300); border-radius: var(--radius); padding: 14px; font-size: 14px; line-height: 1.6; resize: vertical; font-family: inherit; }
+.tarea:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,121,32,.15); }
+
+/* Analysis */
+.acard { background: var(--green-light); border: 1px solid var(--green); border-radius: var(--radius); padding: 14px; margin-top: 10px; }
+.acard h4 { font-size: 12px; font-weight: 700; color: #166534; margin-bottom: 6px; }
+.acard p { font-size: 13px; color: #166534; line-height: 1.5; white-space: pre-wrap; }
+.aerr { background: #FEE2E2; border: 1px solid var(--red); border-radius: var(--radius); padding: 12px; color: #991B1B; font-size: 13px; margin-top: 10px; }
+
+/* Results */
+.res-block { background: var(--g50); border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; border: 1px solid var(--g200); }
+.res-hdr { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 6px; }
+
+/* Spinner */
+.spin { width: 16px; height: 16px; border: 2px solid var(--g300); border-top-color: var(--orange); border-radius: 50%; animation: sp .7s linear infinite; display: inline-block; }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* Bottom bar */
+.bbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid var(--g200); padding: 10px 16px; padding-bottom: calc(10px + var(--safe-b)); display: flex; justify-content: center; z-index: 90; }
+.btn-main { background: var(--orange); color: #fff; border: none; padding: 14px 32px; border-radius: var(--radius); cursor: pointer; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; min-height: 52px; width: 100%; max-width: 400px; justify-content: center; }
+.btn-main:active { opacity: .7; } .btn-main:disabled { opacity: .4; }
+
+/* Modal */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: flex-end; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: #fff; border-radius: 16px 16px 0 0; padding: 24px 20px; padding-bottom: calc(24px + var(--safe-b)); width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; }
+.modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--blue); }
+.modal label { display: block; font-size: 13px; font-weight: 600; color: var(--g700); margin-bottom: 4px; }
+.modal input, .modal select { width: 100%; padding: 10px 12px; border: 1px solid var(--g300); border-radius: 8px; font-size: 14px; margin-bottom: 12px; min-height: 44px; }
+
+/* Toast */
+.toast { position: fixed; bottom: calc(80px + var(--safe-b)); left: 50%; transform: translateX(-50%); background: var(--blue); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: 90vw; text-align: center; }
+.toast.show { opacity: 1; }
+
+/* Hidden file inputs */
+.finput { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><h1>ENERGYCO VT</h1><div class="sub">Visite technique IA</div></div>
+  <div class="hdr-actions">
+    <button class="btn-h" onclick="openSettings()" title="Config">&#9881;</button>
+    <button class="btn-h" onclick="importProject()" title="Importer">&#8679;</button>
+    <button class="btn-h" onclick="exportProject()" title="Exporter">&#8681;</button>
+    <button class="btn-h" onclick="resetProject()" title="Nouveau">&#10227;</button>
+    <input type="file" id="import-input" accept=".json" style="display:none" />
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="plans" onclick="switchTab('plans')">&#128209; Plans <span class="badge" id="bp" style="display:none"></span></div>
+  <div class="tab" data-tab="photos" onclick="switchTab('photos')">&#128247; Photos <span class="badge" id="bph" style="display:none"></span></div>
+  <div class="tab" data-tab="remarks" onclick="switchTab('remarks')">&#128221; Remarques</div>
+  <div class="tab" data-tab="results" onclick="switchTab('results')">&#9889; Resultats <span class="badge" id="br" style="display:none"></span></div>
+</div>
+
+<div class="content">
+<!-- Plans -->
+<div class="panel active" id="panel-plans">
+  <div class="card">
+    <div class="card-title">Plans par etage</div>
+    <div style="background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:14px;font-size:12px;line-height:1.6;color:var(--g700)">
+      <strong style="color:var(--blue)">Comment dessiner votre plan :</strong><br>
+      &#10003; Indiquez la <strong>fleche Nord</strong> (orientation)<br>
+      &#10003; Cotez les murs <strong>par l'exterieur</strong> (longueurs en metres)<br>
+      &#10003; Notez la <strong>hauteur sous plafond</strong> (HSP) sur le plan<br>
+      &#10003; Nommez chaque piece (salon, chambre, cuisine...)<br>
+      &#10003; Marquez les <strong>fenetres</strong> (double trait) et <strong>portes</strong> (arc)<br>
+      &#10003; Indiquez les murs <strong>mitoyens</strong> (hachures ou annotation)
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px;background:var(--g100);border-radius:8px">
+      <label style="font-size:13px;font-weight:600;color:var(--g700);white-space:nowrap">Nombre d'etages :</label>
+      <div style="display:flex;align-items:center;gap:0;border:1px solid var(--g300);border-radius:8px;overflow:hidden">
+        <button class="btn-stepper" onclick="setNbFloors(-1)" style="width:44px;height:44px;border:none;background:var(--g100);font-size:20px;cursor:pointer;font-weight:700;color:var(--g700)">-</button>
+        <span id="nb-floors-val" style="min-width:44px;text-align:center;font-size:16px;font-weight:700;color:var(--blue)">2</span>
+        <button class="btn-stepper" onclick="setNbFloors(1)" style="width:44px;height:44px;border:none;background:var(--g100);font-size:20px;cursor:pointer;font-weight:700;color:var(--g700)">+</button>
+      </div>
+    </div>
+    <div id="floors-ct"></div>
+  </div>
+</div>
+
+<!-- Photos -->
+<div class="panel" id="panel-photos">
+  <div class="card">
+    <div class="card-title">Photos du projet</div>
+    <div style="background:var(--orange-light);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:14px;font-size:12px;line-height:1.6;color:var(--g700)">
+      <strong style="color:var(--orange)">Importez TOUTES vos photos de visite :</strong><br>
+      L'IA analysera l'ensemble et vous indiquera les photos <strong>manquantes</strong>.
+    </div>
+    <div id="all-photos-ct">
+      <div class="pgrid" id="all-photos-grid"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-p" style="flex:1" data-action="open-all-photos-input">+ Ajouter des photos</button>
+      <button class="btn btn-s" id="btn-analyze-photos" data-action="analyze-all-photos" disabled>&#9889; Verifier completude</button>
+    </div>
+    <div id="photos-analysis-result" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- Remarks -->
+<div class="panel" id="panel-remarks">
+  <div class="card">
+    <div class="card-title">Remarques & observations</div>
+    <textarea class="tarea" id="rem-txt" placeholder="Adresse : ...&#10;Annee construction : ...&#10;Type : maison / appartement / immeuble&#10;Niveaux : ...&#10;Surface habitable : ...&#10;&#10;Observations :&#10;- Materiaux : ...&#10;- Isolation : ...&#10;- Systemes : ...&#10;- Pathologies : ..." oninput="saveRem()"></textarea>
+    <p style="font-size:11px;color:var(--g400);margin-top:4px">Adresse, annee, materiaux, systemes, particularites...</p>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="panel" id="panel-results">
+  <div class="card">
+    <div class="card-title">Resultats d'analyse IA</div>
+    <div id="res-ct"><p style="color:var(--g400);font-size:13px">Lancez l'analyse pour voir les resultats.</p></div>
+  </div>
+  <div class="card" id="checklist-card" style="display:none">
+    <div class="card-title">&#9989; Verification completude VT</div>
+    <div id="checklist-ct"></div>
+    <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="runChecklist()">&#9889; Verifier la completude</button>
+  </div>
+</div>
+</div>
+
+<div class="bbar">
+  <button class="btn-main" id="btn-go" onclick="analyzeAll(this)">&#9889; Analyser tout avec l'IA</button>
+</div>
+
+<!-- Settings -->
+<div class="modal-bg" id="mod-set" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h2>Configuration</h2>
+    <label>Cle API OpenRouter</label>
+    <input type="password" id="c-key" placeholder="sk-or-v1-..." />
+    <label>Modele IA</label>
+    <select id="c-mod">
+      <option value="google/gemini-2.5-flash-lite">Gemini 2.5 Flash Lite — $0.10/$0.40 (eco)</option>
+      <option value="google/gemini-2.5-flash" selected>Gemini 2.5 Flash — $0.30/$2.50 (recommande)</option>
+      <option value="google/gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite — $0.25/$1.50</option>
+      <option value="google/gemini-3-flash-preview">Gemini 3 Flash — $0.50/$3.00 (puissant)</option>
+    </select>
+    <label>Taille max photo (px)</label>
+    <select id="c-sz">
+      <option value="800">800px (~80-150 Ko)</option>
+      <option value="1200" selected>1200px (~150-300 Ko)</option>
+      <option value="1600">1600px (~300-500 Ko)</option>
+    </select>
+    <label>Qualite JPEG (%)</label>
+    <input type="number" id="c-q" value="75" min="40" max="95" />
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-s" style="flex:1" onclick="closeSettings()">Annuler</button>
+      <button class="btn btn-p" style="flex:1" onclick="saveSettings()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- All hidden file inputs live here, OUTSIDE any clickable zone -->
+<div id="finputs" style="position:absolute;width:0;height:0;overflow:hidden"></div>
+
+<script>
+// ══════════════ STATE ══════════════
+const S = {
+  floors: [],
+  cats: [],
+  allPhotos: [],
+  photosAnalysis: null,
+  remarks: '',
+  results: [],
+  cfg: { apiKey: '', model: 'google/gemini-2.5-flash', maxSz: 1200, q: 75 }
+};
+
+const CATS = [
+  { id:'facades', name:'Facades', ico:'\u{1F3D8}' },
+  { id:'menuiseries', name:'Menuiseries', ico:'\u{1FA9F}' },
+  { id:'chauffage', name:'Chauffage', ico:'\u{1F525}' },
+  { id:'ecs', name:'ECS', ico:'\u{1F4A7}' },
+  { id:'ventilation', name:'Ventilation', ico:'\u{1F32C}' },
+  { id:'toiture', name:'Toiture / Combles', ico:'\u{1F3E0}' },
+  { id:'planchers', name:'Planchers / Sous-sol', ico:'\u25A0' },
+  { id:'isolation', name:'Isolation visible', ico:'\u{1F9F1}' },
+  { id:'plaques', name:'Plaques signaletiques', ico:'\u{1F4C4}' },
+  { id:'pathologies', name:'Pathologies', ico:'\u26A0' },
+  { id:'interieur', name:'Interieur', ico:'\u{1F3E1}' },
+];
+
+// ══════════════ COMPRESS (canvas, zero lib) ══════════════
+function compress(file, maxSz, quality) {
+  return new Promise((ok, ko) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxSz || h > maxSz) {
+        if (w > h) { h = Math.round(h * maxSz / w); w = maxSz; }
+        else { w = Math.round(w * maxSz / h); h = maxSz; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      c.toBlob(b => {
+        if (!b) return ko('compress fail');
+        const r = new FileReader();
+        r.onload = () => ok({ data: r.result, size: b.size });
+        r.onerror = ko;
+        r.readAsDataURL(b);
+      }, 'image/jpeg', quality / 100);
+    };
+    img.onerror = ko;
+    img.src = url;
+  });
+}
+
+function thumb(dataUrl) {
+  return new Promise(ok => {
+    const img = new Image();
+    img.onload = () => {
+      const s = 120;
+      let w = img.width, h = img.height;
+      if (w > h) { h = Math.round(h * s / w); w = s; } else { w = Math.round(w * s / h); h = s; }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      ok(c.toDataURL('image/jpeg', 0.5));
+    };
+    img.src = dataUrl;
+  });
+}
+
+// ══════════════ FILE HANDLING ══════════════
+function makeInput(id, onChange) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+  inp.id = id; inp.className = 'finput';
+  inp.addEventListener('change', onChange);
+  document.getElementById('finputs').appendChild(inp);
+  return inp;
+}
+
+async function processFiles(files, arr, renderFn, highQuality) {
+  const maxSz = highQuality ? 2048 : S.cfg.maxSz;
+  const q = highQuality ? 92 : S.cfg.q;
+  for (const f of files) {
+    if (!f.type.startsWith('image/')) continue;
+    try {
+      const c = await compress(f, maxSz, q);
+      const t = await thumb(c.data);
+      arr.push({ id: crypto.randomUUID(), data: c.data, thumb: t, size: c.size, name: f.name });
+    } catch(e) { console.error(e); }
+  }
+  renderFn();
+  badges();
+  save();
+}
+
+// ══════════════ RENDER FLOORS ══════════════
+function renderFloors() {
+  const ct = document.getElementById('floors-ct');
+  ct.innerHTML = '';
+  // Remove old floor inputs
+  document.querySelectorAll('[id^="fi-floor-"]').forEach(e => e.remove());
+
+  S.floors.forEach((fl, i) => {
+    const inputId = 'fi-floor-' + fl.id;
+    // Create hidden input in the safe container
+    if (!document.getElementById(inputId)) {
+      makeInput(inputId, e => { processFiles(e.target.files, fl.images, renderFloors, true); e.target.value = ''; });
+    }
+
+    const d = document.createElement('div');
+    d.className = 'floor';
+    d.innerHTML = `
+      <div class="floor-hdr">
+        <span class="floor-lbl">${esc(fl.name)} ${fl.images.length ? '('+fl.images.length+')' : ''}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--g300);border-radius:6px;overflow:hidden;background:#fff">
+            <span style="font-size:11px;color:var(--g500);padding:0 6px;white-space:nowrap">HSP</span>
+            <button style="width:30px;height:30px;border:none;background:var(--g100);cursor:pointer;font-size:14px;font-weight:700;color:var(--g700)" data-action="hsp-down" data-idx="${i}">-</button>
+            <span style="min-width:38px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">${(fl.hsp||2.5).toFixed(2)}m</span>
+            <button style="width:30px;height:30px;border:none;background:var(--g100);cursor:pointer;font-size:14px;font-weight:700;color:var(--g700)" data-action="hsp-up" data-idx="${i}">+</button>
+          </div>
+          ${fl.analysis ? '<span style="color:var(--green);font-size:11px;font-weight:700">\u2713</span>' : ''}
+          <button class="btn btn-sm btn-s" data-action="analyze-floor" data-idx="${i}" ${fl.images.length===0?'disabled':''}>&#9889; Analyser</button>
+          ${S.floors.length > 1 ? `<button class="btn btn-sm btn-d" data-action="rm-floor" data-idx="${i}">\u2715</button>` : ''}
+        </div>
+      </div>
+      <div class="drop" data-action="open-floor-input" data-input="${inputId}">
+        <div class="ico">&#128209;</div>
+        <p>Appuyez ou glissez un plan</p>
+      </div>
+      <div class="pgrid">${fl.images.map((img, j) => `
+        <div class="pthumb">
+          <img src="${img.thumb}" alt="" />
+          <button class="rm" data-action="rm-floor-img" data-fi="${i}" data-ii="${j}">\u2715</button>
+          <span class="sz">${fmtSz(img.size)}</span>
+        </div>`).join('')}</div>
+      ${fl.analysis ? `<div class="acard"><h4>&#9889; ${esc(fl.name)}</h4><p>${esc(fl.analysis)}</p></div>` : ''}
+    `;
+    ct.appendChild(d);
+  });
+}
+
+// ══════════════ RENDER CATEGORIES ══════════════
+function renderCats() {
+  const ct = document.getElementById('cats-ct');
+  ct.innerHTML = '';
+  document.querySelectorAll('[id^="fi-cat-"]').forEach(e => e.remove());
+
+  S.cats.forEach((cat, i) => {
+    const inputId = 'fi-cat-' + cat.id;
+    if (!document.getElementById(inputId)) {
+      makeInput(inputId, e => { processFiles(e.target.files, cat.photos, renderCats); e.target.value = ''; });
+    }
+
+    const d = document.createElement('div');
+    d.className = 'cat';
+    d.innerHTML = `
+      <div class="cat-hdr">
+        <div class="cat-name">
+          <span>${cat.ico}</span> ${esc(cat.name)}
+          ${cat.photos.length ? `<span class="cat-cnt">${cat.photos.length}</span>` : ''}
+        </div>
+        <div class="cat-acts">
+          ${cat.analysis ? '<span style="color:var(--green);font-size:12px;font-weight:700">\u2713</span>' : ''}
+          <button class="btn btn-sm btn-p" data-action="open-cat-input" data-input="${inputId}">+ Photo</button>
+          <button class="btn btn-sm btn-s" data-action="analyze-cat" data-idx="${i}" ${cat.photos.length===0?'disabled':''}>&#9889;</button>
+        </div>
+      </div>
+      <div class="pgrid">${cat.photos.map((p, j) => `
+        <div class="pthumb">
+          <img src="${p.thumb}" alt="" />
+          <button class="rm" data-action="rm-cat-photo" data-ci="${i}" data-pi="${j}">\u2715</button>
+          <span class="sz">${fmtSz(p.size)}</span>
+        </div>`).join('')}</div>
+      ${cat.analysis ? `<div class="acard"><h4>&#9889; ${esc(cat.name)}</h4><p>${esc(cat.analysis)}</p></div>` : ''}
+    `;
+    ct.appendChild(d);
+  });
+}
+
+// ══════════════ EVENT DELEGATION (no inline onclick issues) ══════════════
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-action]');
+  if (!t) return;
+  const a = t.dataset.action;
+  const idx = parseInt(t.dataset.idx);
+
+  if (a === 'open-floor-input' || a === 'open-cat-input') {
+    const inp = document.getElementById(t.dataset.input);
+    if (inp) inp.click();
+  }
+  else if (a === 'hsp-up') { S.floors[idx].hsp = Math.min(5, (S.floors[idx].hsp||2.5) + 0.1); renderFloors(); save(); }
+  else if (a === 'hsp-down') { S.floors[idx].hsp = Math.max(1.5, (S.floors[idx].hsp||2.5) - 0.1); renderFloors(); save(); }
+  else if (a === 'analyze-floor') { analyzeFloor(idx, t); }
+  else if (a === 'rm-floor') { S.floors.splice(idx, 1); S.nbFloors = S.floors.length; updateNbDisplay(); renderFloors(); badges(); save(); }
+  else if (a === 'rm-floor-img') {
+    S.floors[parseInt(t.dataset.fi)].images.splice(parseInt(t.dataset.ii), 1);
+    renderFloors(); badges(); save();
+  }
+  else if (a === 'analyze-cat') { analyzeCat(idx, t); }
+  else if (a === 'rm-cat-photo') {
+    const ci = parseInt(t.dataset.ci);
+    S.cats[ci].photos.splice(parseInt(t.dataset.pi), 1);
+    S.cats[ci].analysis = null;
+    renderCats(); badges(); save();
+  }
+  else if (a === 'open-all-photos-input') {
+    let inp = document.getElementById('fi-all-photos');
+    if (!inp) {
+      makeInput('fi-all-photos', e => { processFiles(e.target.files, S.allPhotos, renderAllPhotos); e.target.value = ''; });
+      inp = document.getElementById('fi-all-photos');
+    }
+    if (inp) inp.click();
+  }
+  else if (a === 'rm-all-photo') {
+    S.allPhotos.splice(parseInt(t.dataset.pi), 1);
+    S.photosAnalysis = null;
+    renderAllPhotos(); badges(); save();
+  }
+  else if (a === 'analyze-all-photos') { analyzeAllPhotos(t); }
+});
+
+// Drag-drop on .drop zones
+document.addEventListener('dragover', e => {
+  const z = e.target.closest('.drop');
+  if (z) { e.preventDefault(); z.classList.add('over'); }
+});
+document.addEventListener('dragleave', e => {
+  const z = e.target.closest('.drop');
+  if (z) z.classList.remove('over');
+});
+document.addEventListener('drop', e => {
+  const z = e.target.closest('.drop');
+  if (!z) return;
+  e.preventDefault(); z.classList.remove('over');
+  const inputId = z.dataset.input;
+  const inp = document.getElementById(inputId);
+  if (inp) {
+    // Find which floor this belongs to
+    const floorId = inputId.replace('fi-floor-', '');
+    const fl = S.floors.find(f => f.id === floorId);
+    if (fl) processFiles(e.dataTransfer.files, fl.images, renderFloors, true);
+  }
+});
+
+// ══════════════ IA CALLS ══════════════
+async function callAI(sysPrompt, userContent, maxTok) {
+  const key = S.cfg.apiKey;
+  if (!key) throw new Error('Cle API manquante. Appuyez sur \u2699 Config.');
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key, 'HTTP-Referer': 'https://energyco.fr', 'X-Title': 'Energyco VT' },
+    body: JSON.stringify({ model: S.cfg.model, messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: userContent }], max_tokens: maxTok || 1200, temperature: 0.15 })
+  });
+  if (!r.ok) throw new Error('Erreur ' + r.status + ': ' + (await r.text()).slice(0, 200));
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content?.trim() || 'Pas de reponse';
+}
+
+function imgContent(images, max) {
+  return images.slice(0, max || 6).map(img => ({ type: 'image_url', image_url: { url: img.data } }));
+}
+
+async function analyzeFloor(i, btn) {
+  const fl = S.floors[i];
+  if (!fl || fl.images.length === 0) return;
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  try {
+    const hsp = (fl.hsp || 2.5).toFixed(2);
+    const sys = `Expert DPE methode 3CL. Analyse le plan cote du niveau ${fl.name}. Cotations en metres. Murs epais=ext, traits fins=cloisons, arcs=portes, doubles traits=fenetres.
+
+REGLES GENERALES DE LECTURE DU PLAN :
+- Lis TOUTES les annotations sur et autour du plan, meme en petits caracteres. Chaque chiffre, texte ou symbole a une signification.
+- Les COTES des pieces (longueur, largeur) sont ecrites A L'INTERIEUR du plan avec des fleches bidirectionnelles.
+- Un chiffre suivi de "m2" ou "m²" pres du plan = SURFACE HABITABLE DECLAREE par l'occupant (a verifier avec tes mesures).
+- Un chiffre suivi de "€" = CHARGES DE CHAUFFAGE declarees. Si c'est quelques centaines (ex: 130€) = charges MENSUELLES. Si > 1000€ = charges ANNUELLES.
+- Un chiffre suivi de "cm" (ex: 48cm, 30cm, 20cm) = EPAISSEUR DE MUR (pas une cote de piece).
+- "avec doublage" = le mur a un doublage isolant.
+- Cherche ATTENTIVEMENT chaque piece et ses deux cotes (longueur ET largeur). Les cotes sont souvent des fleches avec un chiffre entre les deux murs de la piece.
+
+Tu dois UNIQUEMENT verifier et signaler les points suivants. ZERO prose inutile. Sois concis et clair.
+
+=== 1. COTATION PAR PIECE ET SURFACE HABITABLE ===
+Liste chaque piece visible sur le plan avec ses cotes (longueur et largeur) telles que lues sur le plan.
+| Piece | Longueur (m) | Largeur (m) | Surface (m2) | Cotes OK ? | Deduite ? | Incluse dans SHAB ? |
+Cotes OK = OUI si les deux cotes sont lisibles sur le plan, NON si une cote manque.
+Deduite = si une cote manquante a ete calculee par deduction (voir regles ci-dessous), indiquer le calcul.
+Surface = longueur x largeur (si les deux cotes sont disponibles ou deduites, sinon "?").
+Incluse dans SHAB = NON pour : cage d'escalier, escalier, tremie d'escalier. OUI pour tout le reste.
+
+DEDUCTION DES COTES MANQUANTES :
+Si une cote manque pour une piece, essaie de la DEDUIRE par ces methodes :
+1. ALIGNEMENT : si deux pieces sont cote a cote et partagent un mur, elles ont souvent la meme dimension sur cet axe. Ex: une petite piece a gauche fait 1,16m de large, la piece a droite fait 2m de large => la petite piece fait aussi 2m de profondeur si elles sont alignees.
+2. SOUSTRACTION : si tu connais la dimension totale entre deux murs limites (ex: largeur totale = 5,95m) et la dimension d'une piece adjacente (ex: 3,02m), la piece restante fait 5,95 - 3,02 = 2,93m.
+3. ADDITION : la somme des dimensions des pieces alignees sur un axe doit correspondre a la dimension totale du mur exterieur sur cet axe.
+
+Pour chaque deduction, indique CLAIREMENT :
+- La cote deduite et le calcul utilise (ex: "Largeur deduite = 5,95 - 3,02 = 2,93m")
+- Marque cette cote avec [DEDUIT] et demande confirmation au diagnostiqueur.
+
+SURFACE HABITABLE (SHAB) :
+Si toutes les pieces ont leurs cotes (lues ou deduites), calcule :
+SHAB = somme des surfaces des pieces INCLUSES (en excluant cage d'escalier, escalier, tremie).
+| Surface totale toutes pieces | XX.XX m2 |
+| Surface exclue (escalier/cage) | XX.XX m2 |
+| **SURFACE HABITABLE (SHAB)**  | **XX.XX m2** |
+Si des cotes manquent meme apres deduction, indique "SHAB NON CALCULABLE — cotes manquantes pour : [liste des pieces]".
+
+VERIFICATION SURFACE DECLAREE :
+Si une annotation "XX m2" ou "XX m²" est visible sur le plan, c'est la surface declaree par l'occupant.
+Compare-la avec ta SHAB calculee :
+| Surface declaree par l'occupant | XX m2 |
+| Surface calculee (SHAB) | XX.XX m2 |
+| Ecart | XX.XX m2 (XX%) |
+Si l'ecart est > 5%, signale-le clairement : "ECART SIGNIFICATIF — a verifier sur site".
+
+CHARGES DE CHAUFFAGE :
+Si une annotation avec "€" est visible sur le plan, note-la :
+| Charges declarees | XXX € | Periode : mensuel (si centaines) / annuel (si > 1000€) |
+
+=== 2. HAUTEUR DE L'ETAGE ===
+Cherche sur le plan une indication de hauteur sous plafond. Elle est souvent ecrite AU MILIEU du plan sous la forme "h:" suivie d'un chiffre (ex: h:2,53). Autres notations possibles : "H:", "HSP", "h=".
+ATTENTION : ne pas confondre avec des cotes de fenetres, de murs ou d'epaisseurs.
+- Si trouvee : indique la valeur lue.
+- Si absente : signale clairement "HAUTEUR NON INDIQUEE SUR LE PLAN — a mesurer sur site".
+
+=== 3. COTES MANQUANTES ===
+Liste UNIQUEMENT les pieces pour lesquelles il manque une longueur ou une largeur.
+| Piece | Cote manquante (longueur / largeur / les deux) |
+Si toutes les pieces sont cotees, ecris "Aucune cote manquante."
+
+=== 4. MITOYENNETE — INFORMATIONS MANQUANTES ===
+Pour chaque mur du contour exterieur, indique ce qui se trouve de l'autre cote :
+- Exterieur (donnant sur l'air libre)
+- Voisin (mitoyen avec un autre logement)
+- Local non chauffe (LNC) : garage, cave, cage d'escalier, cellier non chauffe...
+- Terre-plein
+
+| Piece | Mur (orientation/position) | Donne sur... | Info lisible sur le plan ? | Methode |
+
+REGLES DE DEDUCTION DE LA MITOYENNETE :
+1. Si l'info est ecrite sur le plan (M, LNC, ext, voisin...) : utilise-la directement. Methode = "lu sur plan".
+2. Si l'info n'est PAS ecrite, DEDUIS-LA avec cette regle :
+   - Un mur qui COMPORTE une fenetre, porte-fenetre ou ouverture = FORTE PROBABILITE qu'il donne sur l'EXTERIEUR. Methode = "[DEDUIT] presence fenetre".
+   - Un mur qui NE COMPORTE AUCUNE ouverture = FORTE PROBABILITE qu'il est MITOYEN (voisin). Methode = "[DEDUIT] aucune ouverture".
+   - Dans un appartement, la porte d'entree donne generalement sur la cage d'escalier (LNC). Methode = "[DEDUIT] porte d'entree".
+3. Si meme apres deduction c'est incertain, signale "A VERIFIER SUR SITE" et demande confirmation.
+
+ATTENTION lecture des annotations :
+- Les chiffres suivis de "cm" (ex: 48cm) sont des EPAISSEURS DE MUR, pas des cotes de piece.
+- "avec doublage" = le mur a un doublage isolant (ne pas lire "arc doublage").
+- Les annotations en couleur autour du plan decrivent souvent les caracteristiques des murs et menuiseries.
+
+=== 5. PORTE D'ENTREE ===
+Verifie la presence de la porte d'entree sur le plan.
+ASTUCE : dans un plan d'APPARTEMENT, la porte d'entree est generalement situee sur le mur donnant sur la cage d'escalier ou un local non chauffe (LNC). Elle est souvent representee par un arc de cercle (symbole de porte) sur ce mur.
+Les dimensions de la porte sont souvent notees au format "largeur/hauteur" (ex: 0,8/2 = 0,80m x 2,00m). Cherche ces annotations PRES de la porte, souvent en couleur (bleu, rouge...).
+| Porte d'entree | Position (quel mur) | Largeur (m) | Hauteur (m) | Materiau (bois / PVC / alu / acier / ?) | Vitrage (DV / SV / opaque / ?) | Dimensions lisibles ? | Materiau lisible ? |
+- Si les dimensions ne sont pas cotees : "DIMENSIONS A MESURER SUR SITE"
+- Si le materiau n'est pas indique : "MATERIAU A VERIFIER SUR SITE — probable bois pour porte d'appartement en cage d'escalier"
+- Si le type de vitrage n'est pas indique : "VITRAGE A VERIFIER SUR SITE"
+- Si la porte d'entree n'est pas visible sur le plan : signaler "PORTE D'ENTREE NON IDENTIFIEE — A LOCALISER"
+
+=== 6. FENETRES ET OUVRANTS SUR MURS EXTERIEURS ===
+Pour chaque mur donnant sur l'exterieur, verifie la presence de fenetres, portes-fenetres ou portes exterieures.
+| Piece | Mur (orientation/position) | Type (fenetre / porte-fenetre / porte) | Largeur (m) | Hauteur (m) | Materiau (bois / PVC / alu / mixte / ?) | Vitrage (DV / DV basic / SV / TV / ?) | Performance vitrage | Dimensions lisibles ? | Materiau lisible ? | Vitrage lisible ? |
+
+REGLES DE LECTURE DES ANNOTATIONS MENUISERIES :
+- Les annotations autour du plan decrivent les menuiseries. Lis TOUT ce qui est ecrit, ligne par ligne.
+- Le MATERIAU (bois, PVC, alu) est souvent ecrit JUSTE EN DESSOUS ou A COTE de "DV" ou "SV". Ex: "DV" puis en dessous "Bois" => DV Bois. Ou "PVC" ecrit au dessus de "DV" => PVC DV.
+- "DV" = double vitrage standard.
+- "DV basic" ou "DVbasic" = double vitrage BASIQUE, moins performant que le DV standard. C'est important a noter car ca impacte le DPE.
+- "SV" = simple vitrage (tres ancien, mauvaise performance).
+- "TV" = triple vitrage.
+- Les dimensions des menuiseries sont souvent au format "largeur/hauteur" (ex: 0,8/1,9 = 0,80m de large x 1,90m de haut) ou "largeur x hauteur".
+
+DISTINCTION FENETRE vs PORTE-FENETRE :
+- Si la HAUTEUR est >= 1,80m (ex: 1,9m, 2m, 2,15m) : c'est une PORTE-FENETRE (on peut passer a travers).
+- Si la HAUTEUR est < 1,80m (ex: 1,15m, 1,3m, 1,5m, 1,78m) : c'est une FENETRE classique.
+- Le format "largeur/hauteur" s'applique aussi bien aux fenetres qu'aux portes-fenetres. Ex: 0,8/1,9 = porte-fenetre de 0,80 x 1,90m.
+
+- Si les dimensions ne sont pas cotees : "A MESURER SUR SITE"
+- Si le materiau (bois, PVC, alu...) n'est pas indique sur le plan : "A VERIFIER SUR SITE"
+- Si le type de vitrage (SV/DV/TV) n'est pas indique : "A VERIFIER SUR SITE"
+- Si un mur exterieur ne comporte aucun ouvrant visible, le signaler.
+- Rappel lecture plan : doubles traits = fenetres, arcs = portes.
+
+=== 7. CONCLUSION PAR MUR DU CONTOUR EXTERIEUR ===
+Fais une synthese mur par mur de tout le contour exterieur du plan (haut, droite, bas, gauche).
+
+REGLES IMPORTANTES :
+- Pour un mur MITOYEN (donnant sur voisin) : PAS BESOIN d'epaisseur ni de doublage. Juste indiquer "mitoyen voisin".
+- Pour un mur donnant sur EXTERIEUR ou LNC : l'epaisseur et le doublage sont ESSENTIELS. Les annotations d'epaisseur (ex: "48cm", "20cm") sont souvent ecrites PRES du mur concerne, parfois avec des fleches. Cherche bien autour de chaque mur.
+- Si un mur est PARTAGE entre deux adjacences (ex: partie = cage d'escalier + partie = exterieur), detaille chaque portion separement.
+
+Pour chaque mur, indique TOUT ce que tu as pu lire :
+
+**MUR HAUT :**
+- Donne sur : (exterieur / voisin / LNC / cage d'escalier / ?)
+- Epaisseur : (si ext ou LNC, obligatoire. Si mitoyen voisin, non necessaire)
+- Doublage/isolation : (avec doublage / sans / ? — uniquement si ext ou LNC)
+- Ouvrants : (nombre et detail de chaque fenetre/porte avec dimensions, materiau, vitrage)
+- Remarques : (toute info supplementaire lue)
+
+**MUR DROIT :**
+(meme format)
+
+**MUR BAS :**
+(meme format)
+
+**MUR GAUCHE :**
+(meme format)
+
+Pour chaque mur exterieur ou LNC, si une info manque (epaisseur, doublage, ouvrants), signale-la clairement.
+
+=== 8. QUESTIONS ===
+Si quelque chose sur le plan n'est pas clair, illisible, ambigu ou incomprehensible, pose la question ici.
+Liste chaque point sous forme de question claire pour le diagnostiqueur. Exemples :
+- "La cote entre le salon et la cuisine est illisible, pouvez-vous confirmer la longueur ?"
+- "Le symbole sur le mur nord de la chambre 2 est-il une fenetre ou une porte-fenetre ?"
+- "L'annotation 'XX' pres de la salle de bain correspond-elle a une dimension ?"
+Si tout est clair, ecris "Aucune question — plan lisible."
+
+Resume final : liste tous les points a verifier/completer sur site.
+
+Ne rien inventer.`;
+    const uc = [...imgContent(fl.images), { type: 'text', text: 'Plan ' + fl.name + '. Analyse complete 8 sections.' }];
+    fl.analysis = await callAI(sys, uc, 2000);
+    addResult('Plan ' + fl.name, fl.analysis);
+    renderFloors(); toast('Plan ' + fl.name + ' analyse');
+  } catch(e) { toast(e.message, 1); }
+  finally { btn.disabled = false; btn.innerHTML = '&#9889; Analyser'; save(); }
+}
+
+async function analyzeCat(i, btn) {
+  const cat = S.cats[i];
+  if (!cat || cat.photos.length === 0) return;
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  const labels = { facades:'facades (materiaux, etat)', menuiseries:'menuiseries (vitrage, cadre)', chauffage:'chauffage (generateur, emetteurs)', ecs:'ECS (type, energie)', ventilation:'ventilation (VMC, grilles)', toiture:'toiture/combles', planchers:'planchers/sous-sol', isolation:'isolation visible', plaques:'plaques signaletiques (marque, modele, puissance)', pathologies:'pathologies (fissures, humidite)', interieur:'interieur (HSP, revetements)' };
+  try {
+    const sys = `Expert DPE. Analyse ces photos de : ${labels[cat.id] || cat.name}.
+
+REPONSE COURTE ET FACTUELLE. Pas de phrases longues, pas de commentaires inutiles. Tableau ou liste a puces uniquement.
+
+EXTRAIRE :
+- Materiau / type : identification precise
+- Marque / modele / ref : si visible sur la photo
+- Etat : bon / moyen / mauvais + defaut constate
+- Donnee 3CL : U estime, rendement, COP, puissance, epaisseur, type vitrage, etc.
+- Pathologie : si presente, sinon ne rien ecrire
+
+[NON VISIBLE] si non determinable. Ne pas deviner, ne pas commenter ce qui n'est pas visible.
+Maximum 15 lignes.`;
+    const uc = [...imgContent(cat.photos, 8), { type: 'text', text: 'Analyse ' + cat.photos.length + ' photo(s) de ' + (labels[cat.id]||cat.name) + '.' }];
+    cat.analysis = await callAI(sys, uc, 800);
+    addResult('Photos - ' + cat.name, cat.analysis);
+    renderCats(); toast(cat.name + ' analyse');
+  } catch(e) { toast(e.message, 1); }
+  finally { btn.disabled = false; btn.innerHTML = '&#9889;'; save(); }
+}
+
+// ══════════════ ALL PHOTOS - SINGLE INPUT ══════════════
+function renderAllPhotos() {
+  const grid = document.getElementById('all-photos-grid');
+  const btn = document.getElementById('btn-analyze-photos');
+  const resultDiv = document.getElementById('photos-analysis-result');
+  if (!grid) return;
+
+  grid.innerHTML = S.allPhotos.map((p, j) => `
+    <div class="pthumb">
+      <img src="${p.thumb}" alt="" />
+      <button class="rm" data-action="rm-all-photo" data-pi="${j}">\u2715</button>
+      <span class="sz">${fmtSz(p.size)}</span>
+    </div>`).join('');
+
+  if (btn) btn.disabled = S.allPhotos.length === 0;
+
+  if (S.photosAnalysis && resultDiv) {
+    resultDiv.innerHTML = '<div class="acard"><h4>&#9889; Verification completude photos</h4><p>' + esc(S.photosAnalysis) + '</p></div>';
+  } else if (resultDiv) {
+    resultDiv.innerHTML = '';
+  }
+
+  badges();
+  save();
+}
+
+async function analyzeAllPhotos(btn) {
+  if (S.allPhotos.length === 0) return;
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analyse...';
+  try {
+    // Collecter le contexte des plans analyses pour le croisement
+    let planContext = '';
+    let totalFenetres = 0;
+    let totalPortesFenetres = 0;
+    let porteEntree = false;
+    let pieces = [];
+    S.floors.forEach(f => {
+      if (f.analysis) {
+        planContext += '\n=== PLAN ' + f.name + ' ===\n' + f.analysis;
+      }
+    });
+
+    const sys = `Expert DPE methode 3CL. Tu recois TOUTES les photos prises lors d'une visite technique DPE.
+
+Ton role est de VERIFIER LA COMPLETUDE du reportage photo ET de CROISER avec les donnees des plans.
+
+${planContext ? 'CONTEXTE DES PLANS ANALYSES :\n' + planContext + '\n\nUtilise ces informations pour verifier la coherence entre plans et photos.' : 'Aucun plan analyse disponible.'}
+
+Reponds UNIQUEMENT avec ce format. ZERO prose inutile.
+
+=== PHOTOS IDENTIFIEES ===
+Pour chaque photo, indique brievement ce qu'elle montre :
+| Photo # | Contenu identifie | Categorie |
+Categories possibles : fenetre, porte entree, chauffage, ECS, ventilation, climatisation, piece interieure, facade, combles, sous-sol, plaque signaletique, isolation, toiture, pathologie, autre.
+
+=== CROISEMENT PLANS / PHOTOS ===
+Compare les elements identifies sur les plans avec les photos fournies.
+
+FENETRES ET MENUISERIES :
+- Nombre de fenetres sur le(s) plan(s) : X
+- Nombre de photos de fenetres DIFFERENTES : X
+- COHERENCE : OUI / NON
+- Si NON, lister les fenetres du plan qui n'ont PAS de photo correspondante.
+  Ex: "Fenetre DV Bois 1,11x1,78 du mur gauche — PAS DE PHOTO"
+ATTENTION : distinguer les photos de fenetres DIFFERENTES. Si 2 photos montrent la MEME fenetre (meme cadre, meme vue), ne compter qu'une seule fois.
+
+PORTE D'ENTREE :
+- Porte d'entree identifiee sur le plan : OUI/NON (avec details si dispo : materiau, dimensions)
+- Photo de la porte d'entree : OUI/NON
+- Si OUI : la photo correspond-elle aux caracteristiques du plan ?
+
+PIECES :
+- Pieces identifiees sur le(s) plan(s) : lister (salon, cuisine, ch.1, ch.2, SDB...)
+- Photos de pieces presentes : lister
+- Pieces sans photo : lister
+
+=== CHECKLIST COMPLETUDE ===
+| Element | Present ? | Detail |
+|---|---|---|
+| Fenetres (chaque fenetre differente) | OUI/NON | X photos sur Y fenetres du plan |
+| Porte d'entree | OUI/NON | coherence avec le plan ? |
+| Systeme de chauffage | OUI/NON | type ? plaque signaletique lisible ? |
+| Systeme ECS (eau chaude) | OUI/NON | type ? plaque signaletique lisible ? |
+| Systeme de ventilation | OUI/NON | type ? |
+| Climatisation / refroidissement | OUI/NON | present ? type ? |
+| Photos des pieces | OUI/NON | quelles pieces couvertes vs plan ? |
+| Combles | OUI/NON | isolation visible ? epaisseur ? |
+| Sous-sol / cave / garage | OUI/NON | isolation plancher visible ? |
+| Facades exterieures | OUI/NON | combien d'orientations ? |
+| Plaques signaletiques | OUI/NON | lisibles ? marque/modele/puissance ? |
+| Toiture | OUI/NON | type de couverture ? |
+
+=== PHOTOS MANQUANTES — A PRENDRE ===
+Liste UNIQUEMENT les photos qui MANQUENT, par ordre de priorite :
+1. (element manquant le plus critique)
+2. ...
+
+Si tout est complet et coherent avec les plans, ecris "Reportage photo COMPLET et COHERENT avec les plans."
+
+Ne rien inventer. Si une photo est floue ou illisible, le signaler.`;
+
+    const uc = [...imgContent(S.allPhotos, 20), { type: 'text', text: S.allPhotos.length + ' photo(s) de visite technique DPE. Verifier completude et coherence avec les plans.' }];
+    S.photosAnalysis = await callAI(sys, uc, 2500);
+    addResult('Completude photos', S.photosAnalysis);
+    renderAllPhotos();
+    toast('Verification photos terminee');
+  } catch(e) { toast(e.message, 1); }
+  finally { btn.disabled = false; btn.innerHTML = '&#9889; Verifier completude'; save(); }
+}
+
+async function analyzeAll(btn) {
+  btn.disabled = true;
+  try {
+    for (let i = 0; i < S.floors.length; i++) {
+      if (S.floors[i].images.length > 0 && !S.floors[i].analysis) {
+        btn.innerHTML = '<span class="spin"></span> Plan ' + S.floors[i].name + '...';
+        const fakeBtn = { disabled: false, innerHTML: '' };
+        await analyzeFloor(i, fakeBtn);
+      }
+    }
+    if (S.allPhotos.length > 0 && !S.photosAnalysis) {
+      btn.innerHTML = '<span class="spin"></span> Photos...';
+      const fakeBtn = { disabled: false, innerHTML: '' };
+      await analyzeAllPhotos(fakeBtn);
+    }
+    if (S.remarks.trim().length > 20) {
+      btn.innerHTML = '<span class="spin"></span> Synthese...';
+      await synthese();
+    }
+    switchTab('results');
+    toast('Analyse complete !');
+  } catch(e) { toast(e.message, 1); }
+  finally { btn.disabled = false; btn.innerHTML = '&#9889; Analyser tout avec l\'IA'; }
+}
+
+async function synthese() {
+  let ctx = '';
+  S.floors.forEach(f => { if (f.analysis) ctx += '\n\n=== PLAN ' + f.name + ' ===\n' + f.analysis; });
+  S.cats.forEach(c => { if (c.analysis) ctx += '\n\n=== ' + c.name.toUpperCase() + ' ===\n' + c.analysis; });
+  const sys = `Expert DPE methode 3CL. Synthese de la VT pour saisie DPE. Tableaux uniquement.
+
+1. ADMINISTRATIF :
+| Champ | Valeur |
+adresse, type batiment (maison/appartement/immeuble), annee construction, surface habitable, HSP, nb niveaux, zone climatique estimee, altitude estimee
+
+2. ENVELOPPE — MURS (tableau) :
+| ID | Orientation | Surface nette m2 | Materiau | Epaisseur cm | Isolation | U estime W/m2K | Adjacence |
+
+3. ENVELOPPE — PLANCHERS (tableau) :
+| ID | Type (bas/haut) | Surface m2 | Composition | Isolation | U estime | Contact (terre-plein/VS/ext/combles) |
+
+4. OUVRANTS (tableau) :
+| ID | Type | Nb | Surface unit m2 | Orientation | Vitrage | Menuiserie | Uw estime |
+
+5. SYSTEMES (tableau) :
+| Poste | Type generateur | Marque/modele | Energie | Puissance kW | Rendement/COP | Annee |
+(chauffage, ECS, ventilation, climatisation)
+
+6. DONNEES MANQUANTES :
+- liste a puces de chaque donnee non determinee avec son impact sur le calcul 3CL
+
+Maximum 50 lignes. Zero prose.`;
+  const r = await callAI(sys, [{ type: 'text', text: 'REMARQUES:\n' + S.remarks + '\n\nANALYSES:\n' + ctx }], 2000);
+  addResult('SYNTHESE GLOBALE', r);
+}
+
+// ══════════════ RESULTS ══════════════
+function addResult(section, content) {
+  S.results = S.results.filter(r => r.section !== section);
+  S.results.push({ section, content, date: new Date().toISOString() });
+  renderRes(); badges(); save();
+}
+
+function renderRes() {
+  const ct = document.getElementById('res-ct');
+  const chk = document.getElementById('checklist-card');
+  if (!S.results.length) { ct.innerHTML = '<p style="color:var(--g400);font-size:13px">Lancez l\'analyse pour voir les resultats.</p>'; chk.style.display = 'none'; return; }
+  ct.innerHTML = S.results.map(r => `<div><div class="res-hdr">${esc(r.section)} <span style="font-weight:400;font-size:10px;color:var(--g400)">${new Date(r.date).toLocaleTimeString('fr')}</span></div><div class="res-block">${esc(r.content)}</div></div>`).join('');
+  chk.style.display = 'block';
+}
+
+async function runChecklist() {
+  const btn = document.querySelector('#checklist-card .btn');
+  const ct = document.getElementById('checklist-ct');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Verification...';
+
+  // Collecter tout le contexte
+  let ctx = '';
+  S.floors.forEach(f => { if (f.analysis) ctx += '\n=== PLAN ' + f.name + ' ===\n' + f.analysis; });
+  S.cats.forEach(c => { if (c.analysis) ctx += '\n=== ' + c.name.toUpperCase() + ' ===\n' + c.analysis; });
+  if (S.remarks.trim()) ctx += '\n=== REMARQUES ===\n' + S.remarks;
+
+  // Categories avec photos
+  const catsAvec = S.cats.filter(c => c.photos.length > 0).map(c => c.name);
+  const catsSans = S.cats.filter(c => c.photos.length === 0).map(c => c.name);
+
+  const sys = `Expert DPE. Verifie si cette visite technique est COMPLETE pour realiser un DPE.
+
+CHECKLIST DPE OBLIGATOIRE — reponds UNIQUEMENT avec ce format :
+
+Pour chaque element, ecris :
+- ✅ OK : [element] — [detail trouve]
+- ❌ MANQUANT : [element] — [ce qu'il faut faire]
+- ⚠️ INCOMPLET : [element] — [ce qui manque]
+
+ELEMENTS A VERIFIER :
+1. Adresse complete du bien
+2. Annee de construction
+3. Type de batiment (maison/appartement/immeuble)
+4. Surface habitable totale
+5. Hauteur sous plafond (HSP)
+6. Orientation du batiment (fleche Nord)
+7. Plans cotes de chaque niveau
+8. Murs exterieurs (materiaux, dimensions)
+9. Menuiseries (type vitrage, materiaux cadre)
+10. Plancher bas (type, isolation)
+11. Plancher haut / toiture (type, isolation)
+12. Systeme de chauffage (type, marque, puissance)
+13. Systeme ECS (type, energie)
+14. Ventilation (type VMC)
+15. Photos facades (toutes orientations)
+16. Plaques signaletiques equipements
+17. Pathologies constatees
+
+A la fin, ecris UN VERDICT :
+- ✅ VISITE COMPLETE — pret pour la saisie DPE
+- ❌ VISITE INCOMPLETE — X elements manquants, retourner sur site ou completer
+
+Categories photo presentes : ${catsAvec.join(', ') || 'aucune'}
+Categories photo absentes : ${catsSans.join(', ') || 'aucune'}
+
+Maximum 25 lignes. Pas de prose.`;
+
+  try {
+    const r = await callAI(sys, [{ type: 'text', text: ctx || 'Aucune analyse disponible.' }], 1200);
+    ct.innerHTML = '<div class="res-block" style="white-space:pre-wrap;line-height:1.8">' + esc(r) + '</div>';
+  } catch(e) { ct.innerHTML = '<div class="aerr">' + esc(e.message) + '</div>'; }
+  finally { btn.disabled = false; btn.innerHTML = '&#9889; Verifier la completude'; }
+}
+
+// ══════════════ INDEXEDDB ══════════════
+function openDB() {
+  return new Promise((ok, ko) => {
+    const r = indexedDB.open('energyco-vt', 2);
+    r.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('p')) db.createObjectStore('p', { keyPath: 'id' }); };
+    r.onsuccess = () => ok(r.result);
+    r.onerror = () => ko(r.error);
+  });
+}
+
+async function save() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction('p', 'readwrite');
+    tx.objectStore('p').put({ id: 'cur', nbFloors: S.nbFloors, floors: S.floors, cats: S.cats, remarks: S.remarks, results: S.results, t: Date.now() });
+  } catch(e) { console.error('save', e); }
+}
+
+async function load() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction('p', 'readonly');
+    const r = tx.objectStore('p').get('cur');
+    await new Promise((ok, ko) => { r.onsuccess = ok; r.onerror = ko; });
+    if (r.result) { S.nbFloors = r.result.nbFloors || 0; S.floors = r.result.floors || []; S.cats = r.result.cats || []; S.allPhotos = r.result.allPhotos || []; S.photosAnalysis = r.result.photosAnalysis || null; S.remarks = r.result.remarks || ''; S.results = r.result.results || []; }
+  } catch(e) { console.error('load', e); }
+}
+
+// ══════════════ CONFIG ══════════════
+function loadCfg() {
+  try { const s = localStorage.getItem('evtcfg'); if (s) Object.assign(S.cfg, JSON.parse(s)); } catch(e) {}
+  if (!S.cfg.apiKey) { S.cfg.apiKey = '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'; saveCfg(); }
+}
+function saveCfg() { localStorage.setItem('evtcfg', JSON.stringify(S.cfg)); }
+
+function openSettings() {
+  document.getElementById('c-key').value = S.cfg.apiKey;
+  document.getElementById('c-mod').value = S.cfg.model;
+  document.getElementById('c-sz').value = S.cfg.maxSz;
+  document.getElementById('c-q').value = S.cfg.q;
+  document.getElementById('mod-set').classList.add('open');
+}
+function closeSettings() { document.getElementById('mod-set').classList.remove('open'); }
+function saveSettings() {
+  S.cfg.apiKey = document.getElementById('c-key').value.trim();
+  S.cfg.model = document.getElementById('c-mod').value;
+  S.cfg.maxSz = parseInt(document.getElementById('c-sz').value);
+  S.cfg.q = parseInt(document.getElementById('c-q').value);
+  saveCfg(); closeSettings(); toast('Config OK');
+}
+
+// ══════════════ EXPORT / RESET ══════════════
+function exportProject() {
+  try {
+    const d = {
+      date: new Date().toISOString(),
+      nbFloors: S.nbFloors || S.floors.length,
+      remarks: S.remarks || '',
+      results: S.results || [],
+      floors: (S.floors || []).map(f => ({
+        id: f.id, name: f.name, hsp: f.hsp || 2.5, analysis: f.analysis || null,
+        images: (f.images || []).map(img => ({ id: img.id, name: img.name, size: img.size, data: img.data, thumb: img.thumb }))
+      })),
+      cats: (S.cats || []).map(c => ({
+        id: c.id, name: c.name, ico: c.ico, analysis: c.analysis || null,
+        photos: (c.photos || []).map(p => ({ id: p.id, name: p.name, size: p.size, data: p.data, thumb: p.thumb }))
+      }))
+    };
+    const json = JSON.stringify(d);
+    if (!json || json.length < 10) { toast('Erreur: donnees vides', 1); return; }
+    const b = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+    a.download = 'VT_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    toast('Exporte (' + fmtSz(b.size) + ')');
+  } catch(e) {
+    console.error('Export error:', e);
+    toast('Erreur export: ' + e.message, 1);
+  }
+}
+
+function importProject() {
+  const inp = document.getElementById('import-input');
+  inp.value = '';
+  inp.onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const d = JSON.parse(reader.result);
+        S.nbFloors = d.nbFloors || d.floors?.length || 1;
+        S.floors = (d.floors || []).map(f => ({
+          id: f.id || 'f' + Date.now() + Math.random(),
+          name: f.name,
+          images: (f.images || []).map(img => typeof img === 'object' && img.data ? img : null).filter(Boolean),
+          analysis: f.analysis || null
+        }));
+        S.cats = CATS.map(c => {
+          const saved = (d.cats || []).find(sc => sc.id === c.id);
+          return { ...c, photos: saved?.photos || [], analysis: saved?.analysis || null };
+        });
+        S.remarks = d.remarks || '';
+        S.results = d.results || [];
+        document.getElementById('rem-txt').value = S.remarks;
+        updateNbDisplay(); renderFloors(); renderCats(); renderRes(); badges(); save();
+        toast('Projet importe');
+      } catch(e) { toast('Fichier invalide', 1); }
+    };
+    reader.readAsText(f);
+  };
+  inp.click();
+}
+
+function resetProject() {
+  if (!confirm('Reinitialiser ? Toutes les donnees seront effacees.')) return;
+  S.nbFloors = 1;
+  S.floors = buildFloors(1);
+  S.cats = CATS.map(c => ({ ...c, photos:[], analysis:null }));
+  S.allPhotos = []; S.photosAnalysis = null;
+  S.remarks = ''; S.results = [];
+  document.getElementById('rem-txt').value = '';
+  updateNbDisplay();
+  renderFloors(); renderCats(); renderAllPhotos(); renderRes(); badges(); save(); toast('Reinitialise');
+}
+
+// Floor names based on count: 1=RDC, 2=RDC+R+1, 3=Sous-sol+RDC+R+1, etc.
+function floorNames(n) {
+  if (n === 1) return ['RDC'];
+  if (n === 2) return ['RDC', 'R+1'];
+  if (n === 3) return ['Sous-sol', 'RDC', 'R+1'];
+  if (n === 4) return ['Sous-sol', 'RDC', 'R+1', 'R+2'];
+  if (n === 5) return ['Sous-sol', 'RDC', 'R+1', 'R+2', 'R+3'];
+  const names = ['Sous-sol 2', 'Sous-sol'];
+  for (let i = 2; i < n; i++) names.push(i === 2 ? 'RDC' : 'R+' + (i - 2));
+  return names;
+}
+
+function buildFloors(n) {
+  return floorNames(n).map((name, i) => ({ id: 'f' + i + '_' + Date.now(), name, hsp: 2.5, images: [] }));
+}
+
+function setNbFloors(delta) {
+  const cur = S.nbFloors || S.floors.length;
+  const next = Math.max(1, Math.min(10, cur + delta));
+  if (next === cur) return;
+  S.nbFloors = next;
+
+  // Rebuild floors list, preserving images from existing floors by name
+  const oldByName = {};
+  S.floors.forEach(f => { oldByName[f.name] = f; });
+  const newNames = floorNames(next);
+  S.floors = newNames.map((name, i) => {
+    if (oldByName[name]) return oldByName[name];
+    return { id: 'f' + i + '_' + Date.now(), name, images: [] };
+  });
+
+  updateNbDisplay();
+  renderFloors(); badges(); save();
+}
+
+function updateNbDisplay() {
+  const el = document.getElementById('nb-floors-val');
+  if (el) el.textContent = S.nbFloors || S.floors.length;
+}
+
+// ══════════════ UI ══════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
+}
+
+function badges() {
+  const pc = S.floors.reduce((s,f) => s + f.images.length, 0);
+  const phc = S.allPhotos ? S.allPhotos.length : S.cats.reduce((s,c) => s + c.photos.length, 0);
+  const rc = S.results.length;
+  badge('bp', pc); badge('bph', phc); badge('br', rc);
+}
+function badge(id, n) { const e = document.getElementById(id); if (n > 0) { e.style.display = 'flex'; e.textContent = n; } else e.style.display = 'none'; }
+
+function fmtSz(b) { return b < 1024 ? b+'o' : b < 1048576 ? Math.round(b/1024)+'Ko' : (b/1048576).toFixed(1)+'Mo'; }
+function esc(t) { const d = document.createElement('div'); d.textContent = t||''; return d.innerHTML; }
+function saveRem() { S.remarks = document.getElementById('rem-txt').value; save(); }
+function toast(m, err) { const e = document.getElementById('toast'); e.textContent = m; e.style.background = err ? 'var(--red)' : 'var(--blue)'; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 3000); }
+
+// ══════════════ PWA SERVICE WORKER ══════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ══════════════ INIT ══════════════
+loadCfg();
+load().then(() => {
+  if (!S.floors.length) { S.nbFloors = 1; S.floors = buildFloors(1); }
+  if (!S.nbFloors) S.nbFloors = S.floors.length;
+  if (!S.cats.length) S.cats = CATS.map(c => ({ ...c, photos:[], analysis:null }));
+  if (!S.allPhotos) S.allPhotos = [];
+  updateNbDisplay();
+  renderFloors(); renderCats(); renderAllPhotos(); renderRes();
+  document.getElementById('rem-txt').value = S.remarks;
+  badges();
+});
+</script>
+</body>
+</html>
