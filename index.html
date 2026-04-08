@@ -973,7 +973,7 @@ async function load() {
 // ══════════════ CONFIG ══════════════
 function loadCfg() {
   try { const s = localStorage.getItem('evtcfg'); if (s) Object.assign(S.cfg, JSON.parse(s)); } catch(e) {}
-  if (!S.cfg.apiKey) { S.cfg.apiKey = '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'; saveCfg(); }
+  if (!S.cfg.apiKey) { S.cfg.apiKey = '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'; saveCfg(); }
 }
 function saveCfg() { localStorage.setItem('evtcfg', JSON.stringify(S.cfg)); }
 
