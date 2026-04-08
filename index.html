@@ -749,12 +749,21 @@ Ton role est de VERIFIER LA COMPLETUDE du reportage photo ET de CROISER avec les
 
 ${planContext ? 'CONTEXTE DES PLANS ANALYSES :\n' + planContext + '\n\nUtilise ces informations pour verifier la coherence entre plans et photos.' : 'Aucun plan analyse disponible.'}
 
+REGLES DE RECONNAISSANCE DES ELEMENTS DPE :
+- CHAUFFAGE ELECTRIQUE : un radiateur electrique mural (panneau rayonnant, convecteur, radiateur a inertie) = systeme de chauffage. Pas besoin de chaudiere. Si tu vois un radiateur electrique, le chauffage EST present.
+- ECS (Eau Chaude Sanitaire) : un ballon d'eau chaude (cumulus, chauffe-eau) = systeme ECS. C'est souvent un gros cylindre blanc vertical ou horizontal avec des tuyaux. Si tu vois un ballon/cumulus, l'ECS EST presente.
+- PORTE D'ENTREE : une porte pleine (bois, PVC, metal) avec serrure/verrou, souvent dans un couloir ou entree. Ne pas confondre avec une porte interieure (plus legere, sans verrou de surete).
+- VENTILATION : une bouche d'extraction ronde au plafond ou en haut d'un mur = VMC (Ventilation Mecanique Controlee). Des grilles d'aeration sur les fenetres comptent aussi.
+- PLAQUE SIGNALETIQUE : etiquette collee sur un appareil (radiateur, ballon, chaudiere) avec marque, modele, puissance, numero de serie. Meme si elle est floue ou partielle, la signaler comme presente.
+- RADIATEUR SDB : un petit radiateur electrique dans une salle de bain est un emetteur de chauffage supplementaire, a compter.
+
 Reponds UNIQUEMENT avec ce format. ZERO prose inutile.
 
 === PHOTOS IDENTIFIEES ===
 Pour chaque photo, indique brievement ce qu'elle montre :
 | Photo # | Contenu identifie | Categorie |
-Categories possibles : fenetre, porte entree, chauffage, ECS, ventilation, climatisation, piece interieure, facade, combles, sous-sol, plaque signaletique, isolation, toiture, pathologie, autre.
+Categories possibles : fenetre, porte entree, chauffage, ECS, ventilation, climatisation, piece interieure, facade, combles, sous-sol, plaque signaletique, isolation, toiture, pathologie, mesure, autre.
+IMPORTANT : une meme photo peut contenir PLUSIEURS elements (ex: un radiateur + une fenetre dans la meme photo). Liste tous les elements visibles.
 
 === CROISEMENT PLANS / PHOTOS ===
 Compare les elements identifies sur les plans avec les photos fournies.
